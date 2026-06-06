@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AEA - Automation Engineering Association, associazione studentesca di robotica del Politecnico di Milano">
+<title>AEA — Automation Engineering Association</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050507;
+  --bg2: #0a0a0f;
+  --bg3: #101018;
+  --surface: #14141f;
+  --surface2: #1c1c2a;
+  --orange: #E85D26;
+  --orange2: #ff7a40;
+  --orange-dim: rgba(232,93,38,0.1);
+  --orange-glow: rgba(232,93,38,0.22);
+  --white: #f4f4f0;
+  --text: #e8e8e0;
+  --text2: #8888a0;
+  --text3: #44445a;
+  --border: rgba(255,255,255,0.06);
+  --border-o: rgba(232,93,38,0.2);
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Bebas Neue', sans-serif;
+  --body: 'Syne', sans-serif;
+  --r: 10px;
+  --r2: 18px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CURSOR ── */
+#cursor {
+  width: 10px; height: 10px;
+  background: var(--orange);
+  border-radius: 50%;
+  position: fixed; z-index: 9999;
+  pointer-events: none;
+  transition: transform 0.15s ease, background 0.2s;
+  transform: translate(-50%,-50%);
+}
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(232,93,38,0.5);
+  border-radius: 50%;
+  position: fixed; z-index: 9998;
+  pointer-events: none;
+  transition: transform 0.35s ease, width 0.2s, height 0.2s, opacity 0.2s;
+  transform: translate(-50%,-50%);
+}
+body:hover #cursor-ring { opacity:1; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 60px;
+  height: 70px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(5,5,7,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 14px;
+  text-decoration: none;
+}
+.nav-logo img { width: 36px; height: 36px; object-fit: contain; }
+.nav-logo-text {
+  font-family: var(--display);
+  font-size: 22px;
+  color: var(--white);
+  letter-spacing: 3px;
+}
+.nav-logo-sub { font-family: var(--mono); font-size: 9px; color: var(--orange); letter-spacing: 2px; display: block; margin-top: -4px; }
+.nav-links { display: flex; gap: 36px; align-items: center; }
+.nav-links a {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+  color: var(--text2); text-decoration: none; text-transform: uppercase;
+  transition: color 0.2s; position: relative;
+}
+.nav-links a::after {
+  content:''; position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--orange);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-cta {
+  background: var(--orange); color: #000 !important;
+  padding: 8px 20px; border-radius: 4px; font-weight: 600 !important;
+}
+.nav-cta::after { display: none !important; }
+.nav-cta:hover { background: var(--orange2) !important; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 120px 60px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(232,93,38,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,93,38,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+}
+.hero-glow {
+  position: absolute; top: 20%; left: 10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(232,93,38,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-tag {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 4px;
+  color: var(--orange); text-transform: uppercase;
+  display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+  opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+}
+.hero-tag::before { content: ''; width: 40px; height: 1px; background: var(--orange); }
+h1.hero-title {
+  font-family: var(--display);
+  font-size: clamp(70px, 10vw, 130px);
+  line-height: 0.92;
+  color: var(--white);
+  letter-spacing: 4px;
+  opacity: 0; animation: fadeUp 0.8s ease 0.4s forwards;
+}
+h1.hero-title .accent { color: var(--orange); }
+.hero-sub {
+  max-width: 520px; margin-top: 28px;
+  font-size: 16px; line-height: 1.7; color: var(--text2);
+  opacity: 0; animation: fadeUp 0.8s ease 0.6s forwards;
+}
+.hero-actions {
+  display: flex; gap: 16px; margin-top: 40px;
+  opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards;
+}
+.btn-primary {
+  background: var(--orange); color: #000;
+  padding: 14px 32px; border-radius: 4px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 2px;
+  text-decoration: none; text-transform: uppercase; font-weight: 600;
+  transition: all 0.2s; display: inline-flex; align-items: center; gap: 10px;
+}
+.btn-primary:hover { background: var(--orange2); transform: translateY(-2px); }
+.btn-secondary {
+  border: 1px solid var(--border-o); color: var(--orange);
+  padding: 14px 32px; border-radius: 4px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: 2px;
+  text-decoration: none; text-transform: uppercase;
+  transition: all 0.2s; display: inline-flex; align-items: center; gap: 10px;
+  background: transparent;
+}
+.btn-secondary:hover { background: var(--orange-dim); }
+.hero-stats {
+  display: flex; gap: 48px; margin-top: 60px;
+  border-top: 1px solid var(--border); padding-top: 40px;
+  opacity: 0; animation: fadeUp 0.8s ease 1s forwards;
+}
+.hero-stat-num { font-family: var(--display); font-size: 42px; color: var(--orange); letter-spacing: 2px; }
+.hero-stat-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+.hero-scroll {
+  position: absolute; bottom: 40px; right: 60px;
+  font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 3px;
+  writing-mode: vertical-rl; display: flex; align-items: center; gap: 12px;
+  animation: fadeIn 1s ease 1.5s both;
+}
+.hero-scroll::after { content: ''; width: 1px; height: 40px; background: var(--text3); animation: scrollLine 2s ease infinite; }
+@keyframes scrollLine { 0%,100%{transform:scaleY(0.3);opacity:0.3} 50%{transform:scaleY(1);opacity:1} }
+
+/* ── SECTION COMMON ── */
+section { padding: 100px 60px; position: relative; }
+.section-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 4px;
+  color: var(--orange); text-transform: uppercase;
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.section-label::before { content:''; width: 30px; height: 1px; background: var(--orange); }
+.section-label span { opacity:0.5; margin-left: 4px; }
+h2.section-title {
+  font-family: var(--display);
+  font-size: clamp(44px, 6vw, 72px);
+  letter-spacing: 3px; color: var(--white);
+  line-height: 1; margin-bottom: 16px;
+}
+.section-desc { max-width: 580px; font-size: 15px; line-height: 1.8; color: var(--text2); margin-bottom: 60px; }
+
+/* ── CHI SIAMO ── */
+#about { background: var(--bg2); }
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+.about-content {}
+.about-visual {
+  position: relative; padding-top: 20px;
+}
+.about-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 28px;
+  position: relative; overflow: hidden;
+}
+.about-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, transparent, var(--orange), transparent);
+}
+.about-card-title { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--orange); margin-bottom: 14px; }
+.about-card-text { font-size: 14px; line-height: 1.8; color: var(--text2); }
+.about-values { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.value-chip {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px;
+  border-left: 2px solid var(--orange);
+}
+.value-chip-title { font-family: var(--mono); font-size: 11px; color: var(--orange); letter-spacing: 1px; margin-bottom: 4px; }
+.value-chip-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.about-numbers { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; margin-top: 24px; }
+.about-num-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px; text-align: center;
+}
+.about-num { font-family: var(--display); font-size: 38px; color: var(--orange); letter-spacing: 2px; }
+.about-num-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 2px; margin-top: 4px; }
+
+/* ── RISULTATI / ACHIEVEMENTS ── */
+#results { background: var(--bg); }
+.results-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.result-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 28px;
+  transition: border-color 0.3s, transform 0.3s;
+  position: relative; overflow: hidden;
+}
+.result-card:hover { border-color: var(--border-o); transform: translateY(-4px); }
+.result-card::after {
+  content:''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--orange-dim), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.result-card:hover::after { opacity: 1; }
+.result-icon { font-size: 28px; margin-bottom: 12px; }
+.result-team { font-family: var(--mono); font-size: 10px; color: var(--orange); letter-spacing: 3px; margin-bottom: 8px; }
+.result-title { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: var(--white); margin-bottom: 10px; }
+.result-text { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+/* ── PROGETTI ── */
+#projects { background: var(--bg2); }
+.projects-tabs {
+  display: flex; gap: 4px; margin-bottom: 48px;
+  background: var(--surface); padding: 4px; border-radius: var(--r);
+  width: fit-content; flex-wrap: wrap;
+}
+.proj-tab {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+  padding: 9px 20px; border-radius: 7px;
+  border: none; background: transparent; color: var(--text2);
+  cursor: none; transition: all 0.2s; text-transform: uppercase;
+}
+.proj-tab.active { background: var(--orange); color: #000; font-weight: 600; }
+.proj-tab:hover:not(.active) { color: var(--white); background: var(--surface2); }
+
+.project-panel { display: none; }
+.project-panel.active { display: block; animation: fadeIn 0.4s ease; }
+
+.project-hero {
+  display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: start;
+  margin-bottom: 40px;
+}
+.project-info {}
+.project-name {
+  font-family: var(--display); font-size: 64px; letter-spacing: 4px;
+  color: var(--white); line-height: 1; margin-bottom: 8px;
+}
+.project-tagline {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+  color: var(--orange); text-transform: uppercase; margin-bottom: 20px;
+}
+.project-desc { font-size: 15px; line-height: 1.8; color: var(--text2); margin-bottom: 30px; }
+.project-image {
+  border-radius: var(--r2); overflow: hidden;
+  border: 1px solid var(--border); aspect-ratio: 4/3;
+  background: var(--surface);
+  position: relative;
+}
+.project-image img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.project-image:hover img { transform: scale(1.04); }
+.project-image-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 12px 16px;
+  background: linear-gradient(transparent, rgba(5,5,7,0.9));
+  font-family: var(--mono); font-size: 10px; color: var(--text2); letter-spacing: 2px;
+}
+
+.subteams-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.subteam-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 22px;
+  border-top: 2px solid var(--orange);
+  transition: transform 0.2s, border-color 0.2s;
+}
+.subteam-card:hover { transform: translateY(-3px); }
+.subteam-icon { font-size: 22px; margin-bottom: 10px; }
+.subteam-name { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; color: var(--orange); margin-bottom: 6px; }
+.subteam-title { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+.subteam-desc { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 14px; }
+.subteam-bullets { list-style: none; }
+.subteam-bullets li {
+  font-family: var(--mono); font-size: 11px; color: var(--text3);
+  padding: 5px 0; border-bottom: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: flex-start; line-height: 1.4;
+}
+.subteam-bullets li::before { content: '→'; color: var(--orange); flex-shrink: 0; margin-top: 1px; }
+
+/* ── RECRUITING ── */
+#recruiting { background: var(--bg); }
+.rec-hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; margin-bottom: 60px;
+}
+.rec-visual {
+  background: var(--surface); border: 1px solid var(--border-o);
+  border-radius: var(--r2); padding: 40px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.rec-visual::before {
+  content: 'JOIN'; position: absolute;
+  font-family: var(--display); font-size: 160px;
+  color: rgba(232,93,38,0.04); letter-spacing: 10px;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  white-space: nowrap;
+}
+.rec-big { font-family: var(--display); font-size: 80px; color: var(--orange); line-height: 1; letter-spacing: 4px; margin-bottom: 8px; }
+.rec-big-label { font-family: var(--mono); font-size: 11px; color: var(--text2); letter-spacing: 3px; }
+.open-roles { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+.role-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 18px; cursor: none;
+  transition: all 0.2s; display: flex; flex-direction: column; gap: 8px;
+}
+.role-card:hover { border-color: var(--border-o); background: var(--surface2); }
+.role-proj { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--orange); }
+.role-name { font-size: 14px; font-weight: 600; color: var(--white); }
+.role-type { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.role-arrow { color: var(--orange); margin-left: auto; font-size: 16px; }
+.rec-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-top: 48px; }
+.rec-step {
+  text-align: center; padding: 24px 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); position: relative;
+}
+.rec-step-num {
+  font-family: var(--display); font-size: 48px; color: var(--orange-dim);
+  line-height: 1; margin-bottom: 12px;
+  -webkit-text-stroke: 1px var(--orange);
+  color: transparent;
+}
+.rec-step-title { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.rec-step-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+/* ── EVENTI ── */
+#events { background: var(--bg2); }
+.events-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+.event-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 24px;
+  transition: border-color 0.2s, transform 0.2s;
+  display: flex; gap: 20px;
+}
+.event-card:hover { border-color: var(--border-o); transform: translateX(4px); }
+.event-date {
+  flex-shrink: 0; width: 54px;
+  background: var(--orange-dim); border: 1px solid var(--border-o);
+  border-radius: var(--r); padding: 10px; text-align: center;
+}
+.event-month { font-family: var(--mono); font-size: 9px; color: var(--orange); letter-spacing: 2px; text-transform: uppercase; }
+.event-day { font-family: var(--display); font-size: 30px; color: var(--white); line-height: 1.1; }
+.event-body { flex: 1; }
+.event-cat {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.cat-seminar { color: #4aadff; }
+.cat-aperitivo { color: #f5c042; }
+.cat-visita { color: #4aff9a; }
+.cat-viaggio { color: var(--orange); }
+.cat-incontro { color: #c084fc; }
+.event-title { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.event-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.events-side { display: flex; flex-direction: column; gap: 16px; }
+.events-side-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 24px; flex: 1;
+}
+.escard-title { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--orange); margin-bottom: 12px; }
+.escard-text { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  padding: 4px 10px; border-radius: 20px;
+}
+.badge-sem { background: rgba(74,173,255,0.12); color: #4aadff; border: 1px solid rgba(74,173,255,0.3); }
+.badge-ap { background: rgba(245,192,66,0.12); color: #f5c042; border: 1px solid rgba(245,192,66,0.3); }
+.badge-vis { background: rgba(74,255,154,0.12); color: #4aff9a; border: 1px solid rgba(74,255,154,0.3); }
+.badge-trip { background: var(--orange-dim); color: var(--orange); border: 1px solid var(--border-o); }
+.badge-inc { background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.3); }
+
+/* ── CONTATTI ── */
+#contact { background: var(--bg); }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+.contact-form-wrap {}
+.contact-form { display: flex; flex-direction: column; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; }
+.form-input, .form-textarea, .form-select {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 12px 16px;
+  color: var(--text); font-family: var(--body); font-size: 14px;
+  transition: border-color 0.2s; outline: none; cursor: none;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--border-o); }
+.form-textarea { min-height: 120px; resize: vertical; }
+.form-select { appearance: none; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.btn-submit {
+  background: var(--orange); color: #000;
+  padding: 14px 28px; border-radius: var(--r);
+  font-family: var(--mono); font-size: 12px; letter-spacing: 2px;
+  border: none; cursor: none; font-weight: 600;
+  transition: background 0.2s, transform 0.2s; text-transform: uppercase;
+  align-self: flex-start; display: flex; align-items: center; gap: 10px;
+}
+.btn-submit:hover { background: var(--orange2); transform: translateY(-2px); }
+.contact-info { display: flex; flex-direction: column; gap: 24px; }
+.contact-info-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 24px;
+}
+.cic-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--orange); margin-bottom: 10px; }
+.cic-value { font-size: 15px; color: var(--text); font-weight: 500; }
+.cic-sub { font-size: 13px; color: var(--text2); margin-top: 4px; line-height: 1.6; }
+.map-embed {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); overflow: hidden; height: 200px;
+  position: relative;
+}
+.map-embed iframe { width: 100%; height: 100%; border: none; filter: invert(0.85) hue-rotate(180deg) brightness(0.9); }
+.map-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  background: var(--surface);
+}
+.map-pin { font-size: 32px; }
+.map-label { font-family: var(--mono); font-size: 11px; color: var(--text2); letter-spacing: 2px; }
+.social-links { display: flex; gap: 12px; flex-wrap: wrap; }
+.social-link {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 10px 18px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+  color: var(--text2); text-decoration: none;
+  transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.social-link:hover { border-color: var(--border-o); color: var(--orange); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--bg2); border-top: 1px solid var(--border);
+  padding: 40px 60px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-logo { font-family: var(--display); font-size: 24px; color: var(--white); letter-spacing: 4px; }
+.footer-copy { font-family: var(--mono); font-size: 11px; color: var(--text3); letter-spacing: 1px; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-family: var(--mono); font-size: 10px; color: var(--text3); text-decoration: none; letter-spacing: 2px; transition: color 0.2s; }
+.footer-links a:hover { color: var(--orange); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(24px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ── TICKER ── */
+.ticker-wrap {
+  overflow: hidden; background: var(--orange); padding: 10px 0;
+  border-top: 1px solid var(--bg); border-bottom: 1px solid var(--bg);
+}
+.ticker-inner {
+  display: flex; gap: 0;
+  animation: ticker 30s linear infinite;
+  white-space: nowrap;
+}
+.ticker-inner:hover { animation-play-state: paused; }
+.ticker-item {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+  color: #000; text-transform: uppercase;
+  padding: 0 40px; display: flex; align-items: center; gap: 20px;
+}
+.ticker-item::after { content: '◆'; font-size: 8px; }
+@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  section { padding: 70px 24px; }
+  #hero { padding: 100px 24px 60px; }
+  .about-grid, .project-hero, .rec-hero, .contact-grid { grid-template-columns: 1fr; }
+  .subteams-grid { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: 1fr; }
+  .open-roles { grid-template-columns: 1fr; }
+  .rec-steps { grid-template-columns: 1fr 1fr; }
+  .events-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 24px; flex-wrap: wrap; }
+  footer { flex-direction: column; gap: 20px; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; }
+  body { cursor: auto; }
+  #cursor, #cursor-ring { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="#hero">
+    <img src="img/logo.png" alt="AEA Logo">
+    <div>
+      <span class="nav-logo-text">AEA</span>
+      <span class="nav-logo-sub">Polimi · Robotics</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#about">Chi Siamo</a>
+    <a href="#projects">Progetti</a>
+    <a href="#events">Eventi</a>
+    <a href="#recruiting" class="nav-cta">Unisciti →</a>
+    <a href="#contact">Contatti</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-tag">Politecnico di Milano · Associazione Studentesca</div>
+  <h1 class="hero-title">
+    AUTOMATION<br>
+    ENGINEERING<br>
+    <span class="accent">ASSOCIATION</span>
+  </h1>
+  <p class="hero-sub">
+    Costruiamo il futuro della robotica. Da droni autonomi a protesi bioniche, da robot quadrupedi a manipolatori intelligenti: AEA è il luogo dove l'ingegneria incontra l'ambizione.
+  </p>
+  <div class="hero-actions">
+    <a href="#projects" class="btn-primary">Esplora i Progetti →</a>
+    <a href="#recruiting" class="btn-secondary">Unisciti a Noi</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-num">4+</div>
+      <div class="hero-stat-label">Progetti Attivi</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">60+</div>
+      <div class="hero-stat-label">Membri</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">12+</div>
+      <div class="hero-stat-label">Sub-Team</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">∞</div>
+      <div class="hero-stat-label">Ambizione</div>
+    </div>
+  </div>
+  <div class="hero-scroll">SCROLL</div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="ticker">
+    <span class="ticker-item">FALCO · Quadricottero Autonomo</span>
+    <span class="ticker-item">SAPIENS · Protesi Bionica</span>
+    <span class="ticker-item">SPOT · Quadrupede Robotico</span>
+    <span class="ticker-item">ArmsAI · Manipolatore Open Source</span>
+    <span class="ticker-item">DRIFT · Banco Prova Droni</span>
+    <span class="ticker-item">Politecnico di Milano</span>
+    <span class="ticker-item">FALCO · Quadricottero Autonomo</span>
+    <span class="ticker-item">SAPIENS · Protesi Bionica</span>
+    <span class="ticker-item">SPOT · Quadrupede Robotico</span>
+    <span class="ticker-item">ArmsAI · Manipolatore Open Source</span>
+    <span class="ticker-item">DRIFT · Banco Prova Droni</span>
+    <span class="ticker-item">Politecnico di Milano</span>
+  </div>
+</div>
+
+<!-- CHI SIAMO -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-content">
+      <div class="section-label reveal">Chi Siamo <span>01</span></div>
+      <h2 class="section-title reveal reveal-delay-1">LA NOSTRA<br>MISSIONE</h2>
+      <div class="about-values reveal reveal-delay-2">
+        <div class="value-chip">
+          <div class="value-chip-title">Apprendere</div>
+          <div class="value-chip-text">Trasformiamo la teoria del Politecnico in prototipi reali che funzionano.</div>
+        </div>
+        <div class="value-chip">
+          <div class="value-chip-title">Costruire</div>
+          <div class="value-chip-text">Meccanica, elettronica, software e AI: ogni progetto abbraccia l'intera stack.</div>
+        </div>
+        <div class="value-chip">
+          <div class="value-chip-title">Collaborare</div>
+          <div class="value-chip-text">Sub-team interdisciplinari dove ogni competenza è fondamentale.</div>
+        </div>
+        <div class="value-chip">
+          <div class="value-chip-title">Innovare</div>
+          <div class="value-chip-text">Spingere i confini con algoritmi avanzati, ML e ricerca applicata.</div>
+        </div>
+      </div>
+    </div>
+    <div class="about-visual reveal">
+      <div class="about-card">
+        <div class="about-card-title">// ABOUT AEA</div>
+        <div class="about-card-text">
+          AEA — Automation Engineering Association — nasce all'interno del Politecnico di Milano con un obiettivo preciso: creare uno spazio dove gli studenti di ingegneria possano progettare, costruire e far volare idee ambiziose.<br><br>
+          Siamo ingegneri, informatici, fisici e designer uniti dalla passione per la robotica. I nostri progetti spaziano dai droni autonomi alle protesi bioniche controllate da segnali muscolari, dai robot quadrupedi ai bracci robotici open-source, fino ai banchi sperimentali in collaborazione con i professori del Politecnico.<br><br>
+          Non siamo solo un club universitario: siamo un laboratorio aperto, un network, una community che cresce anno dopo anno. Ogni membro porta con sé una prospettiva unica — e quella diversità è la nostra forza.
+        </div>
+        <div class="about-numbers">
+          <div class="about-num-card"><div class="about-num">2022</div><div class="about-num-label">Fondazione</div></div>
+          <div class="about-num-card"><div class="about-num">5</div><div class="about-num-label">Progetti</div></div>
+          <div class="about-num-card"><div class="about-num">3</div><div class="about-num-label">Lab Accesso</div></div>
+          <div class="about-num-card"><div class="about-num">Polimi</div><div class="about-num-label">Sede</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RISULTATI -->
+<section id="results">
+  <div class="section-label reveal">Risultati & Traguardi <span>02</span></div>
+  <h2 class="section-title reveal reveal-delay-1">QUELLO CHE<br>ABBIAMO FATTO</h2>
+  <p class="section-desc reveal reveal-delay-2">Ogni milestone è la prova che studenti motivati, con le risorse giuste, possono costruire tecnologia di livello professionale.</p>
+  <div class="results-grid">
+    <div class="result-card reveal">
+      <div class="result-icon">🚁</div>
+      <div class="result-team">FALCO TEAM</div>
+      <div class="result-title">PRIMO VOLO AUTONOMO</div>
+      <div class="result-text">Il quadricottero FALCO ha completato il suo primo volo autonomo con controllo PID di posizione e quota. Telaio in carbonio, motori T-Motor, GPS integrato e algoritmi di depth estimation per obstacle avoidance.</div>
+    </div>
+    <div class="result-card reveal reveal-delay-1">
+      <div class="result-icon">🦾</div>
+      <div class="result-team">SAPIENS TEAM</div>
+      <div class="result-title">PROTESI CON EMG</div>
+      <div class="result-text">La mano robotica SAPIENS risponde ai segnali EMG muscolari in tempo reale. PCB custom, algoritmi di machine learning per il riconoscimento dei pattern motori, integrazione con ROS2 e motori FOC miniaturizzati.</div>
+    </div>
+    <div class="result-card reveal reveal-delay-2">
+      <div class="result-icon">🐕</div>
+      <div class="result-team">SPOT TEAM</div>
+      <div class="result-title">GAIT CONTROLLER</div>
+      <div class="result-text">SpotMicro cammina. Il controller di gait implementa trot, crawl e coordinazione delle zampe con inverse kinematics in tempo reale. Simulazione completa in ambiente 3D prima del deploy fisico.</div>
+    </div>
+    <div class="result-card reveal">
+      <div class="result-icon">🦾</div>
+      <div class="result-team">ARMSAI TEAM</div>
+      <div class="result-title">TELEOPERAZIONE</div>
+      <div class="result-text">SO-ARM100 in modalità leader-follower: un braccio segue in tempo reale i movimenti dell'altro. Pipeline di training completa per policy di manipolazione autonoma con imitation learning.</div>
+    </div>
+    <div class="result-card reveal reveal-delay-1">
+      <div class="result-icon">🔬</div>
+      <div class="result-team">DRIFT TEAM</div>
+      <div class="result-title">BANCO PROVA ATTIVO</div>
+      <div class="result-text">Banco sperimentale per droni di media/grossa taglia realizzato in collaborazione con il Prof. L.M. Fagiano. Struttura attuata con sensori di forza, velocità e posizione per test in ambiente sicuro.</div>
+    </div>
+    <div class="result-card reveal reveal-delay-2">
+      <div class="result-icon">🧠</div>
+      <div class="result-team">TUTTI I TEAM</div>
+      <div class="result-title">ML & RL INTEGRATION</div>
+      <div class="result-text">Profondità di ricerca crescente: algoritmi di reinforcement learning per SPOT, depth estimation stereo/monocular per FALCO, policy learning per ArmsAI. Verso possibili pubblicazioni scientifiche.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGETTI -->
+<section id="projects">
+  <div class="section-label reveal">Progetti Attivi <span>03</span></div>
+  <h2 class="section-title reveal reveal-delay-1">I NOSTRI<br>SISTEMI</h2>
+  <div class="projects-tabs">
+    <button class="proj-tab active" onclick="showProject('falco')">FALCO</button>
+    <button class="proj-tab" onclick="showProject('sapiens')">SAPIENS</button>
+    <button class="proj-tab" onclick="showProject('spot')">SPOT</button>
+    <button class="proj-tab" onclick="showProject('armsai')">ArmsAI</button>
+    <button class="proj-tab" onclick="showProject('drift')">DRIFT</button>
+  </div>
+
+  <!-- FALCO -->
+  <div class="project-panel active" id="proj-falco">
+    <div class="project-hero">
+      <div class="project-info">
+        <div class="project-tagline">Quadricottero Autonomo</div>
+        <div class="project-name">FALCO</div>
+        <p class="project-desc">FALCO è il drone quadricottero sviluppato da AEA: un sistema autonomo progettato dall'hardware al software. Telaio in fibra di carbonio, elettronica di bordo personalizzata e algoritmi avanzati di depth estimation per il volo autonomo in ambienti complessi.</p>
+      </div>
+      <div class="project-image">
+        <img src="img/falco1.jpg" alt="FALCO Quadricottero" onerror="this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:2px;\'>🚁 FALCO</div>'">
+        <div class="project-image-caption">FALCO · Primo test outdoor</div>
+      </div>
+    </div>
+    <div class="subteams-grid">
+      <div class="subteam-card">
+        <div class="subteam-icon">⚙️</div>
+        <div class="subteam-name">Meccanica</div>
+        <div class="subteam-title">Progettazione Hardware & Setup Elettronico</div>
+        <div class="subteam-desc">Abbiamo progettato l'hardware del quadricottero FALCO e configurato l'elettronica di bordo: telaio, power train, ESC, distribuzione di potenza e sensori principali. Il wiring è stato organizzato per manutenzione rapida e riduzione del rumore elettrico.</div>
+        <ul class="subteam-bullets">
+          <li>Scelta motori/prop & dimensionamento batteria</li>
+          <li>ESC calibrati e schema PDB con protezioni</li>
+          <li>Integrazione IMU/Baro/GNSS e bus di comunicazione</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">🎛️</div>
+        <div class="subteam-name">Controllo</div>
+        <div class="subteam-title">Test Algoritmi Base: PID di Posizione e Velocità</div>
+        <div class="subteam-desc">Su piattaforma Teensy abbiamo implementato e testato algoritmi di controllo classici (PID) per attitude, rate e quota. Il tuning è stato eseguito iterativamente con logging ad alta frequenza e verifica su banco prova.</div>
+        <ul class="subteam-bullets">
+          <li>Loop rate deterministico e scheduler leggero</li>
+          <li>Filtri su sensori (LPF/complementary) e anti-windup</li>
+          <li>Test step/ramp, risposta a disturbi e RTH simulato</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">🧠</div>
+        <div class="subteam-name">Robotics AI</div>
+        <div class="subteam-title">Algoritmi di Depth Estimation per Autonomia</div>
+        <div class="subteam-desc">Abbiamo sviluppato algoritmi di depth estimation per la comprensione 3D dell'ambiente: stereo/monocular depth e fusione con IMU per mappe di densità utili ad obstacle avoidance e path-planning.</div>
+        <ul class="subteam-bullets">
+          <li>Pipeline di disparity / monocular depth con smoothing</li>
+          <li>Fusione sensori e stima di scala con dati di moto</li>
+          <li>Cost map 3D → planner locale e limiti velocità adattivi</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAPIENS -->
+  <div class="project-panel" id="proj-sapiens">
+    <div class="project-hero">
+      <div class="project-info">
+        <div class="project-tagline">Protesi Bionica Intelligente</div>
+        <div class="project-name">SAPIENS</div>
+        <p class="project-desc">SAPIENS è la mano robotica di AEA: una protesi bionica che risponde ai segnali muscolari ed elettroencefalografici dell'utente. Dal CAD alla stampa 3D, dai PCB custom ai modelli di machine learning, SAPIENS rappresenta la frontiera dell'interfaccia uomo-macchina.</p>
+      </div>
+      <div class="project-image">
+        <img src="img/sapiens1.jpg" alt="SAPIENS Mano Robotica" onerror="this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:2px;\'>🦾 SAPIENS</div>'">
+        <div class="project-image-caption">SAPIENS · Prototipo con segnali EMG</div>
+      </div>
+    </div>
+    <div class="subteams-grid">
+      <div class="subteam-card">
+        <div class="subteam-icon">🖨️</div>
+        <div class="subteam-name">Meccanica & Elettronica</div>
+        <div class="subteam-title">Struttura della Protesi e Setup Elettronico</div>
+        <div class="subteam-desc">Il team SAPIENS ha progettato meccanicamente la mano robotica, dalle dita al palmo, fino al layout dei componenti. In parallelo il gruppo elettronica ha sviluppato i PCB e selezionato sensori e motori per affidabilità e compattezza.</div>
+        <ul class="subteam-bullets">
+          <li>CAD 3D (SolidWorks) e prototipazione con stampa 3D</li>
+          <li>PCB custom e cablaggio ottimizzato</li>
+          <li>Motori miniaturizzati e riduttori compatti</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">🤖</div>
+        <div class="subteam-name">Controllo</div>
+        <div class="subteam-title">Sistema di Controllo e Interfaccia Robotica</div>
+        <div class="subteam-desc">Dal controllo dei motori con algoritmi FOC fino all'integrazione con ROS2 per la gestione in tempo reale dei comandi. Attenzione al tuning dei controllori e alla simulazione dei movimenti per stabilità e precisione.</div>
+        <ul class="subteam-bullets">
+          <li>Algoritmi PID e FOC su microcontrollori</li>
+          <li>Simulazioni in Matlab/Simulink</li>
+          <li>Integrazione con ROS2 e C++</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">📡</div>
+        <div class="subteam-name">Signal Processing</div>
+        <div class="subteam-title">Interpretazione dei Segnali Neurali e Muscolari</div>
+        <div class="subteam-desc">I sottoteam EEG ed EMG hanno lavorato per tradurre i segnali cerebrali e muscolari in comandi reali della mano, usando modelli di machine learning e sistemi embedded. La protesi risponde direttamente all'intenzione dell'utilizzatore.</div>
+        <ul class="subteam-bullets">
+          <li>Elaborazione EEG con OpenBCI e ML in Python</li>
+          <li>Acquisizione EMG da sensori custom</li>
+          <li>Fusione segnali e riconoscimento pattern motori</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPOT -->
+  <div class="project-panel" id="proj-spot">
+    <div class="project-hero">
+      <div class="project-info">
+        <div class="project-tagline">Robot Quadrupede</div>
+        <div class="project-name">SPOT</div>
+        <p class="project-desc">SpotMicro è il robot quadrupede di AEA, ispirato al design di Spot di Boston Dynamics. Un sistema completo che va dalla meccanica delle zampe agli algoritmi di locomozione adattiva, dalla simulazione 3D al deploy fisico su terreni reali.</p>
+      </div>
+      <div class="project-image">
+        <img src="img/spot1.jpg" alt="SPOT Robot Quadrupede" onerror="this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:2px;\'>🐕 SPOT</div>'">
+        <div class="project-image-caption">SPOT · Simulazione cinematica in 3D</div>
+      </div>
+    </div>
+    <div class="subteams-grid">
+      <div class="subteam-card">
+        <div class="subteam-icon">🦿</div>
+        <div class="subteam-name">Hardware</div>
+        <div class="subteam-title">Strutture Meccaniche, Sensori e Alimentazione</div>
+        <div class="subteam-desc">SpotMicro nasce dall'unione di meccanica ed elettronica: abbiamo progettato il telaio e i cinematismi delle zampe ispirati al design di Spot, con prototipi in stampa 3D. PCB, gestione dell'alimentazione e cablaggio modulare per manutenzione semplice.</div>
+        <ul class="subteam-bullets">
+          <li>CAD 3D (SolidWorks) e prototipazione rapida</li>
+          <li>Progetto PCB per power, sensori e attuatori</li>
+          <li>Schema di alimentazione sicuro e ridondanze base</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">🎯</div>
+        <div class="subteam-name">Controllo</div>
+        <div class="subteam-title">Gait, Coordinazione e Sensor Fusion</div>
+        <div class="subteam-desc">Generazione dei gait (trot, crawl, bound), pianificazione di appoggi e coordinazione degli arti. Con ROS2 gestiamo i sensori, la comunicazione tra nodi e la telemetria, mentre il controllo in anello chiuso usa PID/FOC sugli attuatori.</div>
+        <ul class="subteam-bullets">
+          <li>Controller di posizione/velocità e inverse kinematics</li>
+          <li>ROS2 per messaggistica, logging e diagnosi</li>
+          <li>Test su banco e simulazione con profili di camminata</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">🗺️</div>
+        <div class="subteam-name">Navigazione</div>
+        <div class="subteam-title">Percezione dell'Ambiente e Adattamento al Terreno</div>
+        <div class="subteam-desc">Integriamo stack di percezione e navigazione per muoverci in sicurezza in ambienti diversi. Dalla mappatura locale alla pianificazione del percorso, con ML/RL per adattare postura e velocità a terreni irregolari, ostacoli e pendenze.</div>
+        <ul class="subteam-bullets">
+          <li>Percezione con sensori di distanza e stima di assetto</li>
+          <li>Planner locale, rilevamento ostacoli e recovery behavior</li>
+          <li>Policy di locomozione adattiva (ML/RL)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARMSAI -->
+  <div class="project-panel" id="proj-armsai">
+    <div class="project-hero">
+      <div class="project-info">
+        <div class="project-tagline">Manipolatore Robotico Open Source</div>
+        <div class="project-name">ArmsAI</div>
+        <p class="project-desc">SO-ARM nasce come iniziativa open-source con l'obiettivo di realizzare un braccio robotico accessibile ma robusto. Il design modulare consente di comprendere a fondo cinematica e dinamica di un manipolatore, offrendo una piattaforma per sperimentare con controllo, teleoperazione e robotica collaborativa.</p>
+      </div>
+      <div class="project-image">
+        <img src="img/armsai1.jpg" alt="ArmsAI Braccio Robotico" onerror="this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:2px;\'>🦾 ArmsAI</div>'">
+        <div class="project-image-caption">ArmsAI · SO-ARM100 in configurazione leader-follower</div>
+      </div>
+    </div>
+    <div class="subteams-grid">
+      <div class="subteam-card">
+        <div class="subteam-icon">🖨️</div>
+        <div class="subteam-name">3D Printing</div>
+        <div class="subteam-title">Il Progetto SO-ARM</div>
+        <div class="subteam-desc">SO-ARM nasce come iniziativa open-source con l'obiettivo di realizzare un braccio robotico accessibile ma al tempo stesso robusto. Il design modulare consente a studenti e ricercatori di comprendere a fondo la cinematica e la dinamica di un manipolatore.</div>
+        <ul class="subteam-bullets">
+          <li>Design modulare stampabile e open-source</li>
+          <li>Giunti con servomotori e schede di controllo</li>
+          <li>Calibrazione e test di tolleranze</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">⚡</div>
+        <div class="subteam-name">Elettronica</div>
+        <div class="subteam-title">Dal Modello al Prototipo</div>
+        <div class="subteam-desc">Una volta definito il design, il progetto si concretizza nella costruzione del braccio: strutture leggere e stampabili, giunti equipaggiati con servomotori e schede di controllo. Collaudare il prototipo significa confrontarsi con problematiche reali come attriti, tolleranze e calibrazione.</div>
+        <ul class="subteam-bullets">
+          <li>Assemblaggio e calibrazione servo</li>
+          <li>Gestione dell'alimentazione e protezioni</li>
+          <li>Test di ripetibilità e precisione</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">🤖</div>
+        <div class="subteam-name">Controllo & AI</div>
+        <div class="subteam-title">Teleop, Training e Simulazione</div>
+        <div class="subteam-desc">SO-ARM è una piattaforma aperta. Viene utilizzato per algoritmi di controllo avanzato, teleoperazione leader-follower, integrazione con ROS2 e esperimenti di machine learning per la manipolazione autonoma.</div>
+        <ul class="subteam-bullets">
+          <li>LeRobot: tutorial end-to-end per SO-101</li>
+          <li>Teleop, replay e policy learning</li>
+          <li>ROS2/MoveIt e simulazione</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRIFT -->
+  <div class="project-panel" id="proj-drift">
+    <div class="project-hero">
+      <div class="project-info">
+        <div class="project-tagline">Banco di Prova per Droni</div>
+        <div class="project-name">DRIFT</div>
+        <p class="project-desc">DRIFT è il banco sperimentale per droni di AEA, sviluppato in collaborazione con il Prof. L.M. Fagiano. Una struttura attuata dedicata al test di droni di media/grossa taglia, con l'obiettivo di integrare ML e Reinforcement Learning per voli completamente autonomi e adattativi.</p>
+      </div>
+      <div class="project-image">
+        <img src="img/drift1.jpg" alt="DRIFT Banco Prova" onerror="this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-family:var(--mono);font-size:12px;letter-spacing:2px;\'>🔬 DRIFT</div>'">
+        <div class="project-image-caption">DRIFT · Struttura attuata in laboratorio</div>
+      </div>
+    </div>
+    <div class="subteams-grid">
+      <div class="subteam-card">
+        <div class="subteam-icon">🏗️</div>
+        <div class="subteam-name">Struttura</div>
+        <div class="subteam-title">Banco di Prova per Droni Autonomi</div>
+        <div class="subteam-desc">In collaborazione con il Prof. L.M. Fagiano, stiamo sviluppando una struttura attuata dedicata al test di droni di media/grossa taglia. L'obiettivo iniziale è costruire un banco sperimentale sicuro con sensori e attuatori per simulare condizioni reali di volo.</div>
+        <ul class="subteam-bullets">
+          <li>Progettazione meccanica e integrazione attuatori</li>
+          <li>Sensori per posizione, velocità e forze</li>
+          <li>Setup sicuro per test in laboratorio</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">📐</div>
+        <div class="subteam-name">Controllo</div>
+        <div class="subteam-title">Sviluppo Algoritmi di Controllo</div>
+        <div class="subteam-desc">La seconda fase si concentra sulla progettazione e implementazione di controllori per mantenere stabile il drone durante i test. MATLAB/Simulink per modellazione, simulazioni e tuning dei parametri, con validazione in tempo reale sul banco prova.</div>
+        <ul class="subteam-bullets">
+          <li>Modellazione dinamica del drone</li>
+          <li>PID e controllori avanzati per stabilità</li>
+          <li>Validazione su struttura attuata</li>
+        </ul>
+      </div>
+      <div class="subteam-card">
+        <div class="subteam-icon">🧬</div>
+        <div class="subteam-name">RL</div>
+        <div class="subteam-title">Integrazione di Algoritmi Avanzati</div>
+        <div class="subteam-desc">Una volta consolidato il controllo classico, il progetto prevede l'integrazione di ML e Reinforcement Learning per rendere i droni capaci di adattarsi a condizioni variabili e ottimizzare le performance in autonomia. Questa fase potrà portare anche a pubblicazioni scientifiche.</div>
+        <ul class="subteam-bullets">
+          <li>Algoritmi di ML per predizione e compensazione</li>
+          <li>Reinforcement Learning per policy di volo adattive</li>
+          <li>Possibilità di paper e pubblicazioni</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECRUITING -->
+<section id="recruiting">
+  <div class="section-label reveal">Unisciti a Noi <span>04</span></div>
+  <h2 class="section-title reveal reveal-delay-1">ENTRA IN<br>AEA</h2>
+  <div class="rec-hero">
+    <div class="reveal">
+      <p class="section-desc" style="margin-bottom:28px">Sei uno studente del Politecnico di Milano con la passione per la robotica? Che tu sia un meccanico, un informatico, un elettronico o semplicemente curioso — c'è un posto per te in AEA.<br><br>Non è richiesta esperienza specifica: porti entusiasmo, noi ti insegniamo il resto. I nostri team sono pensati per imparare insieme, sfidandosi su problemi reali.</p>
+      <div class="open-roles">
+        <div class="role-card"><div class="role-proj">FALCO</div><div class="role-name">Meccanica & Strutturale</div><div class="role-type">CAD · FEM · Prototipazione</div><div class="role-arrow">→</div></div>
+        <div class="role-card"><div class="role-proj">FALCO</div><div class="role-name">Algoritmi di Controllo</div><div class="role-type">C++ · Embedded · PID</div><div class="role-arrow">→</div></div>
+        <div class="role-card"><div class="role-proj">SAPIENS</div><div class="role-name">Signal Processing</div><div class="role-type">Python · ML · EEG/EMG</div><div class="role-arrow">→</div></div>
+        <div class="role-card"><div class="role-proj">SPOT</div><div class="role-name">Navigation & Perception</div><div class="role-type">ROS2 · SLAM · RL</div><div class="role-arrow">→</div></div>
+        <div class="role-card"><div class="role-proj">ARMSAI</div><div class="role-name">AI & Robot Learning</div><div class="role-type">Python · LeRobot · MoveIt</div><div class="role-arrow">→</div></div>
+        <div class="role-card"><div class="role-proj">DRIFT</div><div class="role-name">Ricerca & Pubblicazioni</div><div class="role-type">Matlab · ML · Research</div><div class="role-arrow">→</div></div>
+      </div>
+    </div>
+    <div class="rec-visual reveal">
+      <div class="rec-big">60+</div>
+      <div class="rec-big-label">Membri Attivi</div>
+      <div style="margin-top:30px;margin-bottom:10px;font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:3px;">REQUISITI</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+        ✓ Studente Polimi (o laureato recente)<br>
+        ✓ Passione per robotica e ingegneria<br>
+        ✓ Disponibilità ~5h/settimana<br>
+        ✓ Voglia di imparare e sporcarsi le mani<br>
+        ✗ Non serve esperienza pregressa
+      </div>
+    </div>
+  </div>
+  <div class="rec-steps">
+    <div class="rec-step reveal">
+      <div class="rec-step-num">01</div>
+      <div class="rec-step-title">Candidatura</div>
+      <div class="rec-step-text">Compila il form di candidatura indicando i tuoi interessi e in quale progetto vorresti contribuire.</div>
+    </div>
+    <div class="rec-step reveal reveal-delay-1">
+      <div class="rec-step-num">02</div>
+      <div class="rec-step-title">Colloquio</div>
+      <div class="rec-step-text">Un breve colloquio informale con i responsabili del team per conoscerci e valutare il fit.</div>
+    </div>
+    <div class="rec-step reveal reveal-delay-2">
+      <div class="rec-step-num">03</div>
+      <div class="rec-step-title">Onboarding</div>
+      <div class="rec-step-text">Periodo di inserimento guidato: ti introduciamo ai tool, ai workflow e al progetto passo dopo passo.</div>
+    </div>
+    <div class="rec-step reveal reveal-delay-3">
+      <div class="rec-step-num">04</div>
+      <div class="rec-step-title">Build!</div>
+      <div class="rec-step-text">Sei ufficialmente membro di AEA. Inizia a costruire con noi il futuro della robotica al Polimi.</div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTI -->
+<section id="events">
+  <div class="section-label reveal">Vita Associativa <span>05</span></div>
+  <h2 class="section-title reveal reveal-delay-1">EVENTI &<br>ATTIVITÀ</h2>
+  <p class="section-desc reveal reveal-delay-2">AEA non è solo lavoro: organizziamo seminari tecnici, aperitivi di networking, visite aziendali e viaggi per competizioni robotiche internazionali.</p>
+  <div class="events-grid">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="event-card reveal">
+        <div class="event-date"><div class="event-month">OTT</div><div class="event-day">12</div></div>
+        <div class="event-body"><div class="event-cat cat-seminar">SEMINARIO TECNICO</div><div class="event-title">Reinforcement Learning per Robotica Mobile</div><div class="event-desc">Introduzione pratica agli algoritmi RL applicati alla locomozione di robot quadrupedi. Speaker: membro del team SPOT.</div></div>
+      </div>
+      <div class="event-card reveal reveal-delay-1">
+        <div class="event-date"><div class="event-month">NOV</div><div class="event-day">7</div></div>
+        <div class="event-body"><div class="event-cat cat-aperitivo">APERITIVO</div><div class="event-title">AEA Social Night — Q1 Review</div><div class="event-desc">Aperitivo di fine trimestre: review dei progressi di tutti i progetti, nuovi ingressi nei team e networking libero.</div></div>
+      </div>
+      <div class="event-card reveal reveal-delay-2">
+        <div class="event-date"><div class="event-month">NOV</div><div class="event-day">21</div></div>
+        <div class="event-body"><div class="event-cat cat-visita">VISITA AZIENDALE</div><div class="event-title">Visita a Leonardo S.p.A. — Divisione Droni</div><div class="event-desc">Tour degli stabilimenti di Leonardo e incontro con gli ingegneri della divisione droni e sistemi autonomi.</div></div>
+      </div>
+      <div class="event-card reveal">
+        <div class="event-date"><div class="event-month">DIC</div><div class="event-day">5</div></div>
+        <div class="event-body"><div class="event-cat cat-incontro">INCONTRO</div><div class="event-title">Workshop ROS2 — Da zero a navigazione autonoma</div><div class="event-desc">Workshop hands-on di 4 ore su ROS2: architettura, nodi, topic e primo robot simulato. Livello principiante.</div></div>
+      </div>
+      <div class="event-card reveal reveal-delay-1">
+        <div class="event-date"><div class="event-month">GEN</div><div class="event-day">18</div></div>
+        <div class="event-body"><div class="event-cat cat-viaggio">VIAGGIO GARA</div><div class="event-title">RoboCup 2026 — Qualificazioni Italiane</div><div class="event-desc">Viaggio per partecipare alle qualificazioni italiane della RoboCup. Iscrizione aperta ai membri del team SPOT.</div></div>
+      </div>
+    </div>
+    <div class="events-side">
+      <div class="events-side-card reveal">
+        <div class="escard-title">TIPI DI EVENTO</div>
+        <div class="escard-text">Organizziamo regolarmente attività per ogni tipo di interesse — dall'approfondimento tecnico alla socialità.</div>
+        <div class="badge-row">
+          <span class="badge badge-sem">Seminari</span>
+          <span class="badge badge-ap">Aperitivi</span>
+          <span class="badge badge-vis">Visite Aziendali</span>
+          <span class="badge badge-trip">Gare</span>
+          <span class="badge badge-inc">Workshop</span>
+        </div>
+      </div>
+      <div class="events-side-card reveal">
+        <div class="escard-title">PARTNER AZIENDALI</div>
+        <div class="escard-text">Collaboriamo con aziende del settore aerospaziale, robotico e automotive per visite, stage e progetti di ricerca applicata.</div>
+      </div>
+      <div class="events-side-card reveal">
+        <div class="escard-title">RIMANI AGGIORNATO</div>
+        <div class="escard-text">Seguici su Instagram e LinkedIn per non perderti nessun evento. Gli aggiornamenti arrivano anche via mail per i membri.</div>
+        <div class="badge-row" style="margin-top:12px">
+          <a href="#" class="social-link" style="padding:6px 12px;font-size:10px;">📸 Instagram</a>
+          <a href="#" class="social-link" style="padding:6px 12px;font-size:10px;">💼 LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTATTI -->
+<section id="contact">
+  <div class="section-label reveal">Contattaci <span>06</span></div>
+  <h2 class="section-title reveal reveal-delay-1">SCRIVICI</h2>
+  <div class="contact-grid">
+    <div class="contact-form-wrap reveal">
+      <form class="contact-form" onsubmit="handleSubmit(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nome</label>
+            <input type="text" class="form-input" placeholder="Il tuo nome" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="name@mail.polimi.it" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Motivo</label>
+          <select class="form-select">
+            <option>Voglio entrare in AEA</option>
+            <option>Collaborazione / Partnership</option>
+            <option>Info su un progetto</option>
+            <option>Evento o visita</option>
+            <option>Altro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Messaggio</label>
+          <textarea class="form-textarea" placeholder="Scrivici qualcosa..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Invia Messaggio →</button>
+        <div id="form-success" style="display:none;font-family:var(--mono);font-size:12px;color:var(--orange);letter-spacing:2px;margin-top:8px;">✓ MESSAGGIO INVIATO — CI METTIAMO IN CONTATTO PRESTO!</div>
+      </form>
+    </div>
+    <div class="contact-info reveal">
+      <div class="contact-info-card">
+        <div class="cic-label">DOVE SIAMO</div>
+        <div class="cic-value">Politecnico di Milano</div>
+        <div class="cic-sub">Campus Leonardo — Piazza Leonardo da Vinci 32, 20133 Milano<br>Laboratorio AEA: edificio B15</div>
+      </div>
+      <div class="map-embed">
+        <div class="map-overlay">
+          <div class="map-pin">📍</div>
+          <div class="map-label">POLITECNICO DI MILANO</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px;font-family:var(--mono);">Campus Leonardo · Milano</div>
+          <a href="https://maps.google.com/?q=Politecnico+di+Milano+Campus+Leonardo" target="_blank" style="margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--orange);letter-spacing:2px;text-decoration:none;">APRI IN MAPS →</a>
+        </div>
+      </div>
+      <div class="contact-info-card">
+        <div class="cic-label">EMAIL</div>
+        <div class="cic-value">info@aea-polimi.it</div>
+        <div class="cic-sub">Per candidature: recruiting@aea-polimi.it<br>Per partnership: partnership@aea-polimi.it</div>
+      </div>
+      <div class="contact-info-card">
+        <div class="cic-label">SEGUICI</div>
+        <div class="social-links">
+          <a href="#" class="social-link">📸 Instagram</a>
+          <a href="#" class="social-link">💼 LinkedIn</a>
+          <a href="#" class="social-link">🐙 GitHub</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AEA</div>
+  <div class="footer-copy">© 2025 AEA — Automation Engineering Association · Politecnico di Milano</div>
+  <div class="footer-links">
+    <a href="#about">Chi Siamo</a>
+    <a href="#projects">Progetti</a>
+    <a href="#events">Eventi</a>
+    <a href="#contact">Contatti</a>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+function animCursor() {
+  rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+document.querySelectorAll('a,button,.proj-tab,.role-card,.event-card,.result-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ cur.style.transform='translate(-50%,-50%) scale(2)'; ring.style.width='50px'; ring.style.height='50px'; });
+  el.addEventListener('mouseleave',()=>{ cur.style.transform='translate(-50%,-50%) scale(1)'; ring.style.width='36px'; ring.style.height='36px'; });
+});
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// ── PROJECT TABS ──
+function showProject(name) {
+  document.querySelectorAll('.project-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.proj-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('proj-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll',()=>{
+  const nav = document.getElementById('navbar');
+  nav.style.borderBottomColor = window.scrollY > 50 ? 'rgba(232,93,38,0.15)' : 'rgba(255,255,255,0.06)';
+});
+
+// ── FORM ──
+function handleSubmit(e) {
+  e.preventDefault();
+  document.getElementById('form-success').style.display='block';
+  e.target.reset();
+  setTimeout(()=>document.getElementById('form-success').style.display='none', 5000);
+}
+
+// ── COUNTER ANIMATION ──
+function animateCounter(el, target, suffix='') {
+  let current = 0;
+  const step = target/60;
+  const timer = setInterval(()=>{
+    current = Math.min(current+step, target);
+    el.textContent = Math.round(current)+suffix;
+    if(current>=target) clearInterval(timer);
+  },16);
+}
+const heroObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting) {
+      document.querySelectorAll('.hero-stat-num').forEach((el,i)=>{
+        const vals = [4,60,12];
+        const suf = ['+','+','+'];
+        if(vals[i]) animateCounter(el,vals[i],suf[i]||'');
+      });
+      heroObs.disconnect();
+    }
+  });
+},{threshold:0.5});
+const heroStats = document.querySelector('.hero-stats');
+if(heroStats) heroObs.observe(heroStats);
+</script>
+
+<script>
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
